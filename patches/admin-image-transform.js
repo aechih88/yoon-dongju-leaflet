@@ -1,0 +1,106 @@
+// --- Image transform controls patch ---
+const __imgClamp=(v,min,max)=>Math.max(min,Math.min(max,num(v,min)));
+const __imgTransformCss=(s={})=>{
+  const zoom=__imgClamp(s.imageZoom??1,.25,5);
+  const sx=__imgClamp(s.imageScaleX??1,.2,4)*(s.flipX?-1:1);
+  const sy=__imgClamp(s.imageScaleY??1,.2,4)*(s.flipY?-1:1);
+  const tx=num(s.imageOffsetX,0),ty=num(s.imageOffsetY,0),rot=num(s.imageRotate,0);
+  return `transform-origin:50% 50%;transform:translate(${tx}px,${ty}px) rotate(${rot}deg) scale(${zoom*sx},${zoom*sy});will-change:transform;`;
+};
+const __imageVisualCssBase=imageVisualCss;
+imageVisualCss=function(s={}){return `${__imageVisualCssBase(s)};${__imgTransformCss(s)}`};
+
+const __imgStyle=document.createElement('style');
+__imgStyle.textContent=`
+.image-node{overflow:hidden}
+.resize-handle{right:5px!important;bottom:5px!important}
+.img-transform-handle{position:absolute;z-index:1005;width:24px;height:24px;border-radius:8px;border:1px solid rgba(255,255,255,.9);background:#4f46e5;color:#fff;display:grid;place-items:center;font-size:12px;font-weight:900;box-shadow:0 2px 10px rgba(0,0,0,.28);user-select:none;touch-action:none}
+.img-transform-handle.zoom{right:6px;top:6px;cursor:ew-resize}
+.img-transform-handle.x{right:6px;top:50%;transform:translateY(-50%);cursor:ew-resize}
+.img-transform-handle.y{left:50%;bottom:6px;transform:translateX(-50%);cursor:ns-resize}
+.img-transform-badge{position:absolute;left:6px;top:6px;z-index:1004;padding:5px 7px;border-radius:7px;background:rgba(17,24,39,.82);color:#fff;font-size:9px;pointer-events:none}
+.image-node>img{transform-origin:50% 50%}
+`;
+document.head.appendChild(__imgStyle);
+
+const __wirePropsBase=wireProps;
+wireProps=function(){
+  __wirePropsBase();
+  props.querySelectorAll('[data-img-prop]').forEach(el=>el.addEventListener('input',()=>{
+    if(!selected?.stylePath)return;
+    const p=el.dataset.imgProp;
+    let v=num(el.value);
+    if(p==='imageZoom')v=__imgClamp(v,.25,5);
+    if(p==='imageScaleX'||p==='imageScaleY')v=__imgClamp(v,.2,4);
+    if(p==='imageRotate')v=Math.max(-180,Math.min(180,v));
+    if(p==='imageOffsetX'||p==='imageOffsetY')v=Math.max(-800,Math.min(800,v));
+    const st=get(selected.stylePath)||{};st[p]=v;set(selected.stylePath,st);renderSelectedStyle();
+    const out=props.querySelector(`[data-img-out="${p}"]`);if(out)out.textContent=(p==='imageZoom'||p==='imageScaleX'||p==='imageScaleY')?`${Math.round(v*100)}%`:`${Math.round(v)}${p==='imageRotate'?'°':'px'}`;
+  }));
+  props.querySelectorAll('[data-img-action]').forEach(btn=>btn.addEventListener('click',()=>{
+    if(!selected?.stylePath)return;
+    const a=btn.dataset.imgAction,st=get(selected.stylePath)||{};
+    if(a==='flipX')st.flipX=!st.flipX;
+    if(a==='flipY')st.flipY=!st.flipY;
+    if(a==='resetTransform')Object.assign(st,{imageZoom:1,imageScaleX:1,imageScaleY:1,imageOffsetX:0,imageOffsetY:0,imageRotate:0,flipX:false,flipY:false,objectPositionX:50,objectPositionY:50});
+    set(selected.stylePath,st);renderSelectedStyle();renderProps();
+  }));
+};
+
+imageProps=function(){
+  const s=selected.stylePath?get(selected.stylePath)||{}:{};
+  propTitle.textContent='이미지';
+  const zoom=__imgClamp(s.imageZoom??1,.25,5),sx=__imgClamp(s.imageScaleX??1,.2,4),sy=__imgClamp(s.imageScaleY??1,.2,4),ix=num(s.imageOffsetX,0),iy=num(s.imageOffsetY,0),rot=num(s.imageRotate,0);
+  props.innerHTML=`<div class="prop-group"><label class="upload-box">새 이미지 업로드<input id="imageFile" type="file" accept="image/*" hidden></label></div>${selected.stylePath?`
+  <div class="prop-group"><div class="prop-label">이미지 내부 변형</div>
+    <div class="free-tip">이미지 드래그 = 초점 이동 · Alt+휠 = 확대/축소 · 보라색 ↔/↕ 핸들 = 가로/세로 늘리기 · ⤢ 핸들 = 확대/축소</div>
+    ${control('확대 / 축소',`<div style="display:grid;grid-template-columns:1fr 54px;gap:8px;align-items:center"><input type="range" min="0.25" max="5" step="0.01" data-img-prop="imageZoom" value="${zoom}"><span data-img-out="imageZoom" style="font-size:10px;text-align:right">${Math.round(zoom*100)}%</span></div>`)}
+    <div class="prop-row">${control('가로 늘리기',`<input type="number" min="0.2" max="4" step="0.01" data-img-prop="imageScaleX" value="${sx}">`)}${control('세로 늘리기',`<input type="number" min="0.2" max="4" step="0.01" data-img-prop="imageScaleY" value="${sy}">`)}</div>
+    <div class="prop-row">${control('내부 X',`<input type="number" min="-800" max="800" step="1" data-img-prop="imageOffsetX" value="${ix}">`)}${control('내부 Y',`<input type="number" min="-800" max="800" step="1" data-img-prop="imageOffsetY" value="${iy}">`)}</div>
+    ${control('회전',`<div style="display:grid;grid-template-columns:1fr 54px;gap:8px;align-items:center"><input type="range" min="-180" max="180" step="1" data-img-prop="imageRotate" value="${rot}"><span data-img-out="imageRotate" style="font-size:10px;text-align:right">${Math.round(rot)}°</span></div>`)}
+    <div class="stack-actions"><button data-img-action="flipX" class="${s.flipX?'active':''}">좌우 반전</button><button data-img-action="flipY" class="${s.flipY?'active':''}">상하 반전</button><button data-img-action="resetTransform" style="grid-column:1/-1">이미지 변형 초기화</button></div>
+  </div>
+  <div class="prop-group"><div class="prop-label">크롭 / 표시</div>
+    ${control('비율',`<select data-prop="aspectRatio">${['auto','16/9','16/10','4/3','1/1','3/4','9/16'].map(v=>`<option value="${v}" ${s.aspectRatio===v?'selected':''}>${v==='auto'?'자동':v}</option>`).join('')}</select>`)}
+    ${control('맞춤',`<select data-prop="objectFit"><option value="cover">채우기</option><option value="contain" ${s.objectFit==='contain'?'selected':''}>전체 보기</option></select>`)}
+    <button class="tiny-btn" id="resetImageFocus" type="button">초점 가운데로</button>
+    <div class="prop-row">${control('가로 초점',`<input type="range" min="0" max="100" data-prop="objectPositionX" value="${num(s.objectPositionX,50)}">`)}${control('세로 초점',`<input type="range" min="0" max="100" data-prop="objectPositionY" value="${num(s.objectPositionY,50)}">`)}</div>
+    <div class="prop-row">${control('모서리',`<input type="number" data-prop="borderRadius" value="${num(s.borderRadius,0)}">`)}${control('투명도',`<input type="number" min="0" max="1" step="0.05" data-prop="opacity" value="${num(s.opacity,1)}">`)}</div>
+  </div>${layoutControls(s,selected.el?.classList.contains('main-canvas'))}`:''}`;
+  wireProps();
+  $('#imageFile')?.addEventListener('change',async e=>{const f=e.target.files?.[0];if(f)await uploadFor(selected.el,f)});
+  $('#resetImageFocus')?.addEventListener('click',()=>{const st=get(selected.stylePath)||{};st.objectPositionX=50;st.objectPositionY=50;set(selected.stylePath,st);renderSelectedStyle();renderProps();});
+};
+
+function __syncImgControl(prop,val){
+  const el=props.querySelector(`[data-img-prop="${prop}"]`);if(el)el.value=val;
+  const out=props.querySelector(`[data-img-out="${prop}"]`);if(out)out.textContent=(prop==='imageZoom'||prop==='imageScaleX'||prop==='imageScaleY')?`${Math.round(val*100)}%`:`${Math.round(val)}${prop==='imageRotate'?'°':'px'}`;
+}
+function __updateImgStyle(stylePath,prop,val){const st=get(stylePath)||{};st[prop]=val;set(stylePath,st,false);renderSelectedStyle();__syncImgControl(prop,val);}
+function __attachInternalHandles(el,stylePath){
+  el.querySelectorAll('.img-transform-handle,.img-transform-badge').forEach(x=>x.remove());
+  const st=get(stylePath)||{};
+  const badge=document.createElement('div');badge.className='img-transform-badge';badge.textContent=`${Math.round(__imgClamp(st.imageZoom??1,.25,5)*100)}%`;el.appendChild(badge);
+  const make=(cls,label,title,onMove)=>{const h=document.createElement('div');h.className=`img-transform-handle ${cls}`;h.textContent=label;h.title=title;el.appendChild(h);let state=null;h.addEventListener('pointerdown',e=>{e.preventDefault();e.stopPropagation();const s=get(stylePath)||{};state={x:e.clientX,y:e.clientY,zoom:__imgClamp(s.imageZoom??1,.25,5),sx:__imgClamp(s.imageScaleX??1,.2,4),sy:__imgClamp(s.imageScaleY??1,.2,4)};try{h.setPointerCapture(e.pointerId)}catch{}});h.addEventListener('pointermove',e=>{if(!state)return;e.preventDefault();e.stopPropagation();onMove(e,state,badge)});const end=()=>{if(!state)return;state=null;pushHistory();markDirty(false);renderProps()};h.addEventListener('pointerup',end);h.addEventListener('pointercancel',end)};
+  make('zoom','⤢','좌우로 드래그해서 내부 이미지 확대/축소',(e,s,b)=>{const v=__imgClamp(s.zoom+(e.clientX-s.x)/180,.25,5);__updateImgStyle(stylePath,'imageZoom',Math.round(v*100)/100);b.textContent=`${Math.round(v*100)}%`});
+  make('x','↔','좌우로 드래그해서 이미지 가로 비율 변경',(e,s)=>{const v=__imgClamp(s.sx+(e.clientX-s.x)/140,.2,4);__updateImgStyle(stylePath,'imageScaleX',Math.round(v*100)/100)});
+  make('y','↕','위아래로 드래그해서 이미지 세로 비율 변경',(e,s)=>{const v=__imgClamp(s.sy+(e.clientY-s.y)/140,.2,4);__updateImgStyle(stylePath,'imageScaleY',Math.round(v*100)/100)});
+}
+
+const __selectNodeBase=selectNode;
+selectNode=function(type,el,path='',stylePath='',sectionKey=''){
+  __selectNodeBase(type,el,path,stylePath,sectionKey);
+  if(type==='image'&&el&&stylePath)__attachInternalHandles(el,stylePath);
+};
+
+const __enableImagePanBase=enableImagePan;
+enableImagePan=function(el,stylePath){
+  __enableImagePanBase(el,stylePath);
+  if(!stylePath)return;const img=el.querySelector('img');if(!img)return;
+  img.addEventListener('wheel',e=>{
+    if(!e.altKey)return;
+    e.preventDefault();e.stopPropagation();
+    const st=get(stylePath)||{};const cur=__imgClamp(st.imageZoom??1,.25,5);const next=__imgClamp(cur+(e.deltaY<0?.08:-.08),.25,5);st.imageZoom=Math.round(next*100)/100;set(stylePath,st,false);if(selected?.stylePath===stylePath){renderSelectedStyle();__syncImgControl('imageZoom',st.imageZoom);const badge=el.querySelector('.img-transform-badge');if(badge)badge.textContent=`${Math.round(st.imageZoom*100)}%`;}pushHistory();markDirty(false);
+  },{passive:false});
+};
+// --- end image transform controls patch ---
