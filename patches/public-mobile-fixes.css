@@ -1,0 +1,22 @@
+/* Fixed 430x932 mobile canvas + smooth 2D gate. Intro and main use the same outer paper color. */
+html,body,.viewport,#intro{background:#ead7bd!important}
+.viewport,#intro{overflow:hidden!important}
+.leaflet-frame{width:430px!important;height:932px!important;min-width:430px!important;min-height:932px!important;max-width:none!important;max-height:none!important;aspect-ratio:auto!important;box-shadow:none!important;background:#e9d6bc!important}
+.leaflet-frame img.full{width:100%!important;height:100%!important;object-fit:cover!important}
+.main-frame::after,.intro-vignette{display:none!important;background:none!important}
+.intro-copy{background:none!important;text-shadow:none!important}
+#intro{place-items:center!important;transition:opacity .28s ease,visibility .28s ease!important;background:#ead7bd!important}
+.intro-frame{perspective:none!important;transform-style:flat!important;transform:none!important}
+.opening{left:28.6%!important;top:55.62%!important;width:42.9%!important;height:19.38%!important;filter:none!important;background-size:244% auto!important;background-position:50% 37%!important}
+.door-slice{backface-visibility:hidden!important;transform:translate3d(0,0,0);will-change:transform;contain:paint}
+.door-left{clip-path:polygon(28.6% 55.62%,50% 55.62%,50% 75%,28.6% 75%)!important;transform-origin:28.6% 65.31%!important}
+.door-right{clip-path:polygon(50% 55.62%,71.5% 55.62%,71.5% 75%,50% 75%)!important;transform-origin:71.5% 65.31%!important}
+.intro-frame.is-opening{animation:none!important}
+.intro-frame.is-opening .door-left{animation:gateSlideLeft 1.04s cubic-bezier(.2,.72,.2,1) .08s forwards!important}
+.intro-frame.is-opening .door-right{animation:gateSlideRight 1.04s cubic-bezier(.2,.72,.2,1) .08s forwards!important}
+@keyframes gateSlideLeft{to{transform:translate3d(-18%,0,0)}}
+@keyframes gateSlideRight{to{transform:translate3d(18%,0,0)}}
+@media(max-width:560px){
+  .leaflet-frame,#intro .intro-frame{width:430px!important;height:932px!important;min-width:430px!important;min-height:932px!important;max-width:none!important;max-height:none!important}
+  .viewport,#intro{place-items:center!important;background:#ead7bd!important}
+}
