@@ -24,10 +24,15 @@ function injectBeforeLast(file, marker, patchFile) {
 }
 
 if (sourceDir === "admin") {
-  injectBeforeLast(path.join(outDir, "index.html"), "})();</script>", path.join("patches", "admin-image-transform.js"));
+  const file = path.join(outDir, "index.html");
+  injectBeforeLast(file, "})();</script>", path.join("patches", "admin-image-transform.js"));
+  injectBeforeLast(file, "})();</script>", path.join("patches", "admin-overlay-editor.js"));
 } else {
-  injectBeforeLast(path.join(outDir, "public-render.js"), "})();", path.join("patches", "public-image-transform.js"));
+  const file = path.join(outDir, "public-render.js");
+  injectBeforeLast(file, "})();", path.join("patches", "public-image-transform.js"));
+  injectBeforeLast(file, "})();", path.join("patches", "public-overlay-renderer.js"));
+  fs.appendFileSync(path.join(outDir, "public.css"), "\n" + fs.readFileSync(path.join("patches", "public-mobile-fixes.css"), "utf8") + "\n");
 }
 
 console.log(`Vercel project host: ${projectHost || "(unknown)"}`);
-console.log(`Deploying ${sourceDir}/ -> ${outDir}/ with image transform controls`);
+console.log(`Deploying ${sourceDir}/ -> ${outDir}/ with JSON overlay editor`);
