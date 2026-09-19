@@ -1,0 +1,7 @@
+{
+  "name": "yoon-dongju-leaflet-deploy-router",
+  "private": true,
+  "scripts": {
+    "build": "node build.mjs"
+  }
+}
