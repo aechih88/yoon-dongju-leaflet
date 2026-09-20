@@ -50,7 +50,8 @@ function __overlayLayerHtml(key){return `<div class="json-overlay-layer" data-ov
 const __ovStyleTag=document.createElement('style');
 __ovStyleTag.textContent=`
 .overlay-page-canvas{position:relative;width:430px;height:932px;min-height:932px;overflow:hidden;background:#e9d6bc}
-.overlay-page-bg{position:absolute;inset:0;width:430px;height:932px;overflow:hidden;z-index:0}
+.overlay-main-fill{position:absolute;inset:-18px;width:466px;height:968px;object-fit:cover;object-position:50% 50%;filter:blur(16px) brightness(.96);transform:scale(1.03);z-index:0;pointer-events:none}
+.overlay-page-bg{position:absolute;inset:0;width:430px;height:932px;overflow:hidden;z-index:1}
 .overlay-page-bg>img{width:100%;height:100%;object-fit:cover;display:block}
 .json-overlay-layer{position:absolute;inset:0;z-index:3;pointer-events:none}
 .json-overlay{pointer-events:auto;box-sizing:border-box}
@@ -75,7 +76,7 @@ renderIntro=function(){
 };
 renderMain=function(){
   const p=draft.pages.main;
-  canvas.innerHTML=`<div class="overlay-page-canvas"><div class="overlay-page-bg image-node" data-image-path="pages.main.image" data-image-style="pages.main.imageStyle"><img src="${esc(assetUrl(p.image))}" style="${esc(imageVisualCss(p.imageStyle||{}))}"></div>${__overlayLayerHtml('main')}</div>`;
+  canvas.innerHTML=`<div class="overlay-page-canvas"><img class="overlay-main-fill" src="${esc(assetUrl(p.image))}" alt=""><div class="overlay-page-bg image-node" data-image-path="pages.main.image" data-image-style="pages.main.imageStyle"><img src="${esc(assetUrl(p.image))}" style="${esc(imageVisualCss(p.imageStyle||{}))}"></div>${__overlayLayerHtml('main')}</div>`;
 };
 
 const __renderDetailBaseOv=renderDetail;
