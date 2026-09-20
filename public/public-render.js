@@ -63,7 +63,8 @@
 
   function heroHtml(d){
     const st=d.styles||{};
-    return `<section class="detail-hero"${styleAttr(sectionCss(d.style))}><img class="detail-hero-image" src="${esc(d.image)}"${styleAttr(imageCss(d.imageStyle))} alt=""><div class="detail-hero-copy"><div class="num"${styleAttr(textCss(st.kicker))}>${esc(d.kicker)}</div><h1${styleAttr(textCss(st.title))}>${br(d.title)}</h1><p${styleAttr(textCss(st.body))}>${esc(d.body)}</p></div></section>`;
+    const image=d.image?`<img class="detail-hero-image" src="${esc(d.image)}"${styleAttr(imageCss(d.imageStyle))} alt="">`:'';
+    return `<section class="detail-hero"${styleAttr(sectionCss(d.style))}>${image}<div class="detail-hero-copy"><div class="num"${styleAttr(textCss(st.kicker))}>${esc(d.kicker)}</div><h1${styleAttr(textCss(st.title))}>${br(d.title)}</h1><p${styleAttr(textCss(st.body))}>${esc(d.body)}</p></div></section>`;
   }
   function textSection(d,extra=''){
     const st=d.styles||{};
@@ -71,7 +72,8 @@
   }
   function galleryHtml(d){
     const st=d.styles||{};
-    return `<section class="detail-section"${styleAttr(sectionCss(d.style))}><div class="detail-kicker"${styleAttr(textCss(st.kicker))}>${esc(d.kicker)}</div><h2${styleAttr(textCss(st.title))}>${br(d.title)}</h2><p${styleAttr(textCss(st.body))}>${esc(d.body)}</p><figure class="visual-card"><img src="${esc(d.image)}"${styleAttr(imageCss(d.imageStyle))} alt=""><figcaption${styleAttr(textCss(st.caption))}>${esc(d.caption)}</figcaption></figure></section>`;
+    const visual=d.image?`<figure class="visual-card"><img src="${esc(d.image)}"${styleAttr(imageCss(d.imageStyle))} alt=""><figcaption${styleAttr(textCss(st.caption))}>${esc(d.caption)}</figcaption></figure>`:'';
+    return `<section class="detail-section"${styleAttr(sectionCss(d.style))}><div class="detail-kicker"${styleAttr(textCss(st.kicker))}>${esc(d.kicker)}</div><h2${styleAttr(textCss(st.title))}>${br(d.title)}</h2><p${styleAttr(textCss(st.body))}>${esc(d.body)}</p>${visual}</section>`;
   }
   function awardsHtml(d){
     const st=d.styles||{};
@@ -85,7 +87,7 @@
     if(!d)return '';
     const st=d.styles||{};
     if(d.type==='text') return textSection(d);
-    if(d.type==='image') return `<section class="detail-section custom-image"${styleAttr(sectionCss(d.style))}>${d.kicker?`<div class="detail-kicker"${styleAttr(textCss(st.kicker))}>${esc(d.kicker)}</div>`:''}${d.title?`<h2${styleAttr(textCss(st.title))}>${br(d.title)}</h2>`:''}<figure class="visual-card"><img src="${esc(d.image)}"${styleAttr(imageCss(d.imageStyle))} alt=""><figcaption${styleAttr(textCss(st.caption))}>${esc(d.caption||'')}</figcaption></figure></section>`;
+    if(d.type==='image') return `<section class="detail-section custom-image"${styleAttr(sectionCss(d.style))}>${d.kicker?`<div class="detail-kicker"${styleAttr(textCss(st.kicker))}>${esc(d.kicker)}</div>`:''}${d.title?`<h2${styleAttr(textCss(st.title))}>${br(d.title)}</h2>`:''}${d.image?`<figure class="visual-card"><img src="${esc(d.image)}"${styleAttr(imageCss(d.imageStyle))} alt=""><figcaption${styleAttr(textCss(st.caption))}>${esc(d.caption||'')}</figcaption></figure>`:''}</section>`;
     if(d.type==='button') return `<section class="detail-section custom-button"${styleAttr(sectionCss(d.style))}>${d.kicker?`<div class="detail-kicker"${styleAttr(textCss(st.kicker))}>${esc(d.kicker)}</div>`:''}${d.title?`<h2${styleAttr(textCss(st.title))}>${br(d.title)}</h2>`:''}${d.body?`<p${styleAttr(textCss(st.body))}>${esc(d.body)}</p>`:''}<a class="landing-btn" href="${esc(d.url||'#')}"${styleAttr(textCss(st.button))}>${esc(d.label||'자세히 보기')}</a></section>`;
     if(d.type==='spacer') return `<div class="custom-spacer" style="height:${n(d.height,40)}px"></div>`;
     return '';
