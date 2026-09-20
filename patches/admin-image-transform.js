@@ -104,3 +104,37 @@ enableImagePan=function(el,stylePath){
   },{passive:false});
 };
 // --- end image transform controls patch ---
+
+
+/* --- remote sync: DB -> builder when there are no unsaved local edits --- */
+let __yoonRemoteSyncSig = null;
+let __yoonRemoteSyncBusy = false;
+async function __yoonSyncFromRemote(){
+  if(__yoonRemoteSyncBusy || dirty || document.hidden || !YoonStore?.isSupabaseConfigured) return;
+  __yoonRemoteSyncBusy = true;
+  try{
+    const remote = await YoonStore.loadRemoteOnly();
+    const sig = JSON.stringify(remote);
+    if(__yoonRemoteSyncSig===null){ __yoonRemoteSyncSig=sig; return; }
+    if(sig!==__yoonRemoteSyncSig){
+      draft = YoonStore.normalize(remote);
+      __yoonRemoteSyncSig = sig;
+      selected = null;
+      history = [];
+      historyIndex = -1;
+      pushHistory();
+      renderAll();
+      saveState.textContent='Supabase 최신 상태';
+      saveState.className='save-state ok';
+      toast('공개 데이터 변경사항을 불러왔어요.');
+    }
+  }catch(e){
+    console.warn('remote sync failed',e);
+  }finally{
+    __yoonRemoteSyncBusy=false;
+  }
+}
+setTimeout(__yoonSyncFromRemote,1800);
+setInterval(__yoonSyncFromRemote,5000);
+window.addEventListener('focus',()=>setTimeout(__yoonSyncFromRemote,120));
+document.addEventListener('visibilitychange',()=>{if(!document.hidden)setTimeout(__yoonSyncFromRemote,120)});
