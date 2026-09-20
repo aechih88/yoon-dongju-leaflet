@@ -29,13 +29,15 @@ html,body,.viewport,#intro{background:#ead7bd!important}
   transform-style:preserve-3d!important;
   contain:layout paint;
 }
+/* The source gate image is 941x1672. On the 430x932 cover-cropped canvas,
+   the door lands at 28.6%..71.5% rather than the original 32.41%..67.69%. */
 .opening{
-  left:32.41%!important;
+  left:28.6%!important;
   top:55.62%!important;
-  width:35.28%!important;
+  width:42.9%!important;
   height:19.38%!important;
   filter:brightness(.75)!important;
-  background-size:280% auto!important;
+  background-size:244% auto!important;
   background-position:50% 37%!important;
 }
 .door-slice{
@@ -44,12 +46,12 @@ html,body,.viewport,#intro{background:#ead7bd!important}
   will-change:transform;
 }
 .door-left{
-  clip-path:polygon(32.41% 55.62%,50.05% 55.62%,50.05% 75%,32.41% 75%)!important;
-  transform-origin:32.41% 65.31%!important;
+  clip-path:polygon(28.6% 55.62%,50% 55.62%,50% 75%,28.6% 75%)!important;
+  transform-origin:28.6% 65.31%!important;
 }
 .door-right{
-  clip-path:polygon(50.05% 55.62%,67.69% 55.62%,67.69% 75%,50.05% 75%)!important;
-  transform-origin:67.69% 65.31%!important;
+  clip-path:polygon(50% 55.62%,71.5% 55.62%,71.5% 75%,50% 75%)!important;
+  transform-origin:71.5% 65.31%!important;
 }
 .intro-frame.is-opening{
   animation:cameraPushRestored 2.5s cubic-bezier(.22,.7,.18,1) .16s both!important;
