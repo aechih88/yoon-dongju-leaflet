@@ -22,7 +22,7 @@ html,body,.viewport,#intro{background:#ead7bd!important}
 /* Gate fills the mobile frame. Main map keeps the full source width visible. */
 .intro-frame>img.full,.door-slice{object-fit:cover!important}
 .main-frame>img.full{
-  object-fit:contain!important;
+  object-fit:fill!important;
   object-position:50% 50%!important;
   background:#ead7bd!important;
 }
