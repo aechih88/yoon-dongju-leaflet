@@ -25,3 +25,20 @@ render=function(data){
 };
 window.YoonRenderPage=render;
 // --- end public image transform patch ---
+
+
+/* --- remove empty detail images from public rendering --- */
+const __renderImageDeleteBase=render;
+render=function(data){
+  __renderImageDeleteBase(data);
+  if(page!=='main'){
+    document.querySelectorAll('img').forEach(img=>{
+      if(img.getAttribute('src')!=='')return;
+      const visual=img.closest('.visual-card');
+      if(visual) visual.remove();
+      else img.style.display='none';
+    });
+  }
+};
+window.YoonRenderPage=render;
+/* --- end remove empty detail images --- */
