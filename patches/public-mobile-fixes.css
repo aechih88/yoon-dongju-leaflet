@@ -11,9 +11,21 @@ html,body,.viewport,#intro{background:#ead7bd!important}
   max-height:none!important;
   aspect-ratio:auto!important;
   box-shadow:none!important;
-  background:#e9d6bc!important;
+  background:#ead7bd!important;
 }
-.leaflet-frame img.full{width:100%!important;height:100%!important;object-fit:cover!important}
+.leaflet-frame img.full{
+  position:absolute;
+  inset:0;
+  width:100%!important;
+  height:100%!important;
+}
+/* Gate fills the mobile frame. Main map keeps the full source width visible. */
+.intro-frame>img.full,.door-slice{object-fit:cover!important}
+.main-frame>img.full{
+  object-fit:contain!important;
+  object-position:50% 50%!important;
+  background:#ead7bd!important;
+}
 .main-frame::after,.intro-vignette{display:none!important;background:none!important}
 .intro-copy{background:none!important}
 #intro{place-items:center!important;background:#ead7bd!important;transition:opacity .75s ease,visibility .75s ease!important}
