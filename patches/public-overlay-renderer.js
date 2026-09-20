@@ -42,7 +42,7 @@ mainHtml=function(data){
   return `<div id="intro" ${previewMode?'style="display:none"':''}><div class="leaflet-frame intro-frame" id="introFrame">
     <img class="full" src="${esc(intro.image||p.gateImage)}" alt=""><div class="opening" style="background-image:url('${esc(p.image)}')"></div>
     <img class="door-slice door-left" src="${esc(intro.image||p.gateImage)}" alt=""><img class="door-slice door-right" src="${esc(intro.image||p.gateImage)}" alt="">${__pubOvLayer(data,'intro','intro-overlays')}</div></div>
-    <main class="viewport"><div class="leaflet-frame main-frame"><img class="full" src="${esc(p.image)}" alt="무계원 전시 안내도">${__pubOvLayer(data,'main','main-overlays')}</div></main>`;
+    <main class="viewport"><div class="leaflet-frame main-frame"><img class="main-fill-bg" src="${esc(p.image)}" alt="" aria-hidden="true"><img class="full main-fit-foreground" src="${esc(p.image)}" alt="무계원 전시 안내도">${__pubOvLayer(data,'main','main-overlays')}</div></main>`;
 };
 
 const __detailHtmlBaseOv=detailHtml;
@@ -54,6 +54,8 @@ detailHtml=function(data,key){
 
 const __pubOverlayStyle=document.createElement('style');
 __pubOverlayStyle.textContent=`
+.main-frame>.main-fill-bg{position:absolute;inset:-18px;width:calc(100% + 36px);height:calc(100% + 36px);object-fit:cover!important;object-position:50% 50%;filter:blur(16px) brightness(.96);transform:scale(1.03);z-index:0;pointer-events:none}
+.main-frame>.main-fit-foreground{position:absolute;inset:0;z-index:1;object-fit:contain!important;object-position:50% 50%!important}
 .public-json-overlay-layer{position:absolute;inset:0;width:430px;height:932px;z-index:6;pointer-events:none}
 .public-json-overlay{pointer-events:none;text-decoration:none;white-space:pre-wrap;word-break:keep-all}
 .public-json-overlay.button,.public-json-overlay.hotspot-json{pointer-events:auto}
