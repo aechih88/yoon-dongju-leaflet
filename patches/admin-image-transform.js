@@ -62,7 +62,7 @@ imageProps=function(){
   </div>
   <div class="prop-group"><div class="prop-label">크롭 / 표시</div>
     ${control('비율',`<select data-prop="aspectRatio">${['auto','16/9','16/10','4/3','1/1','3/4','9/16'].map(v=>`<option value="${v}" ${s.aspectRatio===v?'selected':''}>${v==='auto'?'자동':v}</option>`).join('')}</select>`)}
-    ${control('맞춤',`<select data-prop="objectFit"><option value="cover">채우기</option><option value="contain" ${s.objectFit==='contain'?'selected':''}>전체 보기</option></select>`)}
+    ${control('맞춤',`<select data-prop="objectFit"><option value="cover" ${s.objectFit==='cover'?'selected':''}>채우기(크롭)</option><option value="contain" ${s.objectFit==='contain'?'selected':''}>전체 보기(여백)</option><option value="fill" ${s.objectFit==='fill'?'selected':''}>전체 맞춤(잘림 없음)</option></select>`)}
     <button class="tiny-btn" id="resetImageFocus" type="button">초점 가운데로</button>
     <div class="prop-row">${control('가로 초점',`<input type="range" min="0" max="100" data-prop="objectPositionX" value="${num(s.objectPositionX,50)}">`)}${control('세로 초점',`<input type="range" min="0" max="100" data-prop="objectPositionY" value="${num(s.objectPositionY,50)}">`)}</div>
     <div class="prop-row">${control('모서리',`<input type="number" data-prop="borderRadius" value="${num(s.borderRadius,0)}">`)}${control('투명도',`<input type="number" min="0" max="1" step="0.05" data-prop="opacity" value="${num(s.opacity,1)}">`)}</div>
