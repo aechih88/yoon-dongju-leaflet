@@ -70,8 +70,8 @@ render=function(data){
     const imgs=[...f.querySelectorAll('img')];
     Promise.all(imgs.map(img=>img.decode?img.decode().catch(()=>null):Promise.resolve())).then(()=>{
       requestAnimationFrame(()=>requestAnimationFrame(()=>f.classList.add('is-opening')));
-      setTimeout(()=>i.classList.add('is-done'),1320);
-      setTimeout(()=>i.remove(),1720);
+      setTimeout(()=>i.classList.add('is-done'),2450);
+      setTimeout(()=>i.remove(),3200);
     });
   }
 };
