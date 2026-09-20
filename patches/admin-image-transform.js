@@ -20,6 +20,12 @@ __imgStyle.textContent=`
 .img-transform-handle.y{left:50%;bottom:6px;transform:translateX(-50%);cursor:ns-resize}
 .img-transform-badge{position:absolute;left:6px;top:6px;z-index:1004;padding:5px 7px;border-radius:7px;background:rgba(17,24,39,.82);color:#fff;font-size:9px;pointer-events:none}
 .image-node>img{transform-origin:50% 50%}
+.image-delete-btn{width:100%;height:36px;margin-top:9px;border:1px solid #efb1b1;border-radius:8px;background:#fff6f6;color:#b42318;font-size:11px;font-weight:800;cursor:pointer}
+.image-delete-btn:hover{background:#fff0f0}
+.image-node img[src=""]{display:none!important}
+.hero-block>.image-node:has(>img[src=""]){position:absolute;inset:0;min-height:460px;background:#eee7dd}
+.visual.image-node:has(>img[src=""]){min-height:170px;background:#f3eee8;border:1px dashed #ccbbaa;display:grid;place-items:center}
+.hero-block>.image-node:has(>img[src=""])::before,.visual.image-node:has(>img[src=""])::before{content:'이미지 없음 · 클릭해서 새 이미지 업로드';position:absolute;inset:0;display:grid;place-items:center;color:#8a7565;font-size:11px;font-weight:700;z-index:2}
 `;
 document.head.appendChild(__imgStyle);
 
@@ -49,9 +55,10 @@ wireProps=function(){
 
 imageProps=function(){
   const s=selected.stylePath?get(selected.stylePath)||{}:{};
+  const hasImage=!!(selected?.path&&get(selected.path));
   propTitle.textContent='이미지';
   const zoom=__imgClamp(s.imageZoom??1,.25,5),sx=__imgClamp(s.imageScaleX??1,.2,4),sy=__imgClamp(s.imageScaleY??1,.2,4),ix=num(s.imageOffsetX,0),iy=num(s.imageOffsetY,0),rot=num(s.imageRotate,0);
-  props.innerHTML=`<div class="prop-group"><label class="upload-box">새 이미지 업로드<input id="imageFile" type="file" accept="image/*" hidden></label></div>${selected.stylePath?`
+  props.innerHTML=`<div class="prop-group"><label class="upload-box">새 이미지 업로드<input id="imageFile" type="file" accept="image/*" hidden></label>${hasImage?'<button type="button" class="image-delete-btn" id="deleteImageBtn">이미지 삭제</button>':''}</div>${selected.stylePath?`
   <div class="prop-group"><div class="prop-label">이미지 내부 변형</div>
     <div class="free-tip">이미지 드래그 = 초점 이동 · Alt+휠 = 확대/축소 · 보라색 ↔/↕ 핸들 = 가로/세로 늘리기 · ⤢ 핸들 = 확대/축소</div>
     ${control('확대 / 축소',`<div style="display:grid;grid-template-columns:1fr 54px;gap:8px;align-items:center"><input type="range" min="0.25" max="5" step="0.01" data-img-prop="imageZoom" value="${zoom}"><span data-img-out="imageZoom" style="font-size:10px;text-align:right">${Math.round(zoom*100)}%</span></div>`)}
@@ -69,6 +76,14 @@ imageProps=function(){
   </div>${layoutControls(s,selected.el?.classList.contains('main-canvas'))}`:''}`;
   wireProps();
   $('#imageFile')?.addEventListener('change',async e=>{const f=e.target.files?.[0];if(f)await uploadFor(selected.el,f)});
+  $('#deleteImageBtn')?.addEventListener('click',()=>{
+    if(!selected?.path)return;
+    if(!confirm('이 이미지를 삭제할까요? 저장하면 공개 페이지에서도 사라집니다.'))return;
+    set(selected.path,'');
+    selected=null;
+    renderAll();
+    toast('이미지를 삭제했어요. 저장하면 공개 페이지에도 반영됩니다.');
+  });
   $('#resetImageFocus')?.addEventListener('click',()=>{const st=get(selected.stylePath)||{};st.objectPositionX=50;st.objectPositionY=50;set(selected.stylePath,st);renderSelectedStyle();renderProps();});
 };
 
