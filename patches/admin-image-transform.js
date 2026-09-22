@@ -183,4 +183,53 @@ __detailImageDeleteCss.textContent=`
 }
 `;
 document.head.appendChild(__detailImageDeleteCss);
+
+/* --- direct detail image delete controls --- */
+const __detailDeleteStyle=document.createElement('style');
+__detailDeleteStyle.textContent=`
+.detail-image-delete-x{
+  position:absolute;right:8px;top:8px;z-index:1100;
+  width:28px;height:28px;border-radius:8px;border:1px solid #efb1b1;
+  background:#fff6f6;color:#b42318;font-size:18px;font-weight:800;
+  display:none;align-items:center;justify-content:center;
+  box-shadow:0 2px 10px rgba(0,0,0,.12);cursor:pointer
+}
+.image-node.selected-node>.detail-image-delete-x{display:flex}
+`;
+document.head.appendChild(__detailDeleteStyle);
+
+function __deleteCurrentDetailImage(){
+  if(!selected?.path||selected.type!=='image'||current==='intro'||current==='main')return;
+  if(!get(selected.path)){toast('이미지가 이미 비어 있어요.');return}
+  if(!confirm('이 이미지를 삭제할까요? 저장하면 공개 페이지에서도 사라집니다.'))return;
+  const path=selected.path,stylePath=selected.stylePath,sectionKey=selected.sectionKey||'';
+  pushHistory();
+  set(path,'');
+  selected=null;
+  renderAll();
+  const slot=canvas.querySelector(`[data-image-path="${CSS.escape(path)}"]`);
+  if(slot) selectNode('image',slot,path,stylePath,sectionKey);
+  toast('이미지를 삭제했어요. 저장하면 공개 페이지에서도 사라집니다.');
+}
+function __attachDetailDeleteX(el){
+  if(!el||current==='intro'||current==='main')return;
+  el.querySelector('.detail-image-delete-x')?.remove();
+  const b=document.createElement('button');
+  b.type='button';b.className='detail-image-delete-x';b.textContent='×';b.title='이미지 삭제';
+  b.addEventListener('click',e=>{e.preventDefault();e.stopPropagation();__deleteCurrentDetailImage()});
+  el.appendChild(b);
+}
+const __selectNodeDeleteBase=selectNode;
+selectNode=function(type,el,path='',stylePath='',sectionKey=''){
+  __selectNodeDeleteBase(type,el,path,stylePath,sectionKey);
+  if(type==='image'&&el&&current!=='intro'&&current!=='main')__attachDetailDeleteX(el);
+};
+document.addEventListener('keydown',e=>{
+  if(selected?.type!=='image'||current==='intro'||current==='main')return;
+  const tag=(e.target?.tagName||'').toLowerCase();
+  if(tag==='input'||tag==='textarea'||e.target?.isContentEditable)return;
+  if(e.key==='Delete'||e.key==='Backspace'){e.preventDefault();e.stopImmediatePropagation();__deleteCurrentDetailImage()}
+},true);
+/* --- end direct detail image delete controls --- */
+
 /* --- end detail image selection/deletion hardening --- */
